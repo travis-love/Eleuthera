@@ -13,17 +13,46 @@
 	<link rel="stylesheet" href="assets/css/style.css" type="text/css" media="screen" />
 	
 <script src="assets/js/jquery-1.7.2.min.js"></script>
+<script src="http://wami.csail.mit.edu/wami-2.0.js?prettyPrint=true"></script>
 <script src="assets/js/bootLoader.js"></script>
-<!-- swfobject is a commonly used library to embed Flash content -->
-<script type="text/javascript" src="assets/js/swfobject.js"></script>
-
-<!-- Setup the recorder interface for flash (temp) -->
-<script type="text/javascript" src="assets/js/recorder.js"></script>
-
 
 </head>
 <body>
-	<div id="wami" style="margin-left: 100px;"></div>
+	<div id="container">
+		<div id="main">
+		
+			<section id="editor" class="border">
+				<header>
+					<h2>Editor</h2>
+				</header>
+				<div id="live" role="log" aria-live="polite" aria-atomic="true" aria-relevant="additions">
+				</div>
+				<div id="properties">
+					<p>After clicking 'allow' and 'remember' in the flash security pop-up, click the microphone icon to start/stop recording.<br/>You can say "Hello WAMI", "I want a cracker", or "Feed me!"</p>
+				</div>
+				<div id="output"></div>
+			</section>
+			<section id="outline" class="border">
+				<header>
+					<h2>Outline</h2>
+				</header>
+			</section>
+			<aside>	
+				<section id="manager" class="border">
+					<header>
+						<h2>Manager</h2>
+					</header>
+				</section>
+				<section id="elements" class="border">
+					<header>
+						<h2>Elements</h2>
+					</header>
+				</section>
+			</aside>
+		</div>
+		
+		<header class="border"></header>
+	</div>
 
 
 </body>
