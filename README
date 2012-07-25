@@ -1,0 +1,13 @@
+Introduction:
+
+Eleuthera is a test project to bring web programming through voice recognition.  This initially is to see if it is possible to code a validatable HTML/CSS document using only JavaScript as the source engine, and JSON as the data storage.  The project is using MIT's web services known as WAMI to a) give the application access to the microphone, b) servers to send the speech stream to for processing.  Find out more about WAMI at http://wami.csail.mit.edu.
+
+Requirements:
+
+	- Hosted web server or WAMP/LAMP/XAMP solution
+	- A developer key to use for the WAMI API (http://wami.csail.mit.edu/documentation.html)
+	- Project files
+	
+Getting Started:
+
+WAMI is using Flash as the solution for microphone access until getUserMedia() audio access is standardized, and so the project needs to be hosted.  Simply copy the project files to your hosted server or localhost folder.  After signing up and generating a developer key for the URL the files are located, paste the key in assets/JS/bootLoader.js.  Replace 'devKey : "..." ' on line 30 with your new key.

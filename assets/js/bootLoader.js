@@ -7,7 +7,7 @@ function loadWAMI() {
 var header = 
 	"#JSGF V1.0;\n" +
 	"grammar Eleuthera;\n" +
-	"public <top> = (<command> <element> [<location>]);\n";
+	"public <top> = (<command> <element> [<audit> <command> <element>]*);\n";
 	
 var commands = 
 	"<command> = (insert | append | prepend | select | deselect | remove | erase | delete) ;\n";
@@ -15,12 +15,12 @@ var commands =
 var elements = 
 	"<element> = (style | link | article | aside | details | caption | figure | footer | header | group | nav | section | function | var);\n";
 	
-var locations = 
-	"<location> = (with | and)| here;";
+var audit = 
+	"<audit> = (with | and)+ | here;";
 	
         var grammar = {
 			language : "en-us",
-			grammar : header + commands + elements + locations,
+			grammar : header + commands + elements + audit,
 			aggregate : false,
 			incremental : false
 		};
@@ -44,7 +44,7 @@ var locations =
 
 function onWamiReady(){
 	postToLive("WAMI Loaded", "success");
-	displayArray();
+	displayDoc();
 }
 
 function onWamiRecognitionResult(result) {
@@ -152,8 +152,8 @@ var objElements = {
 		{"name" : "legend" , "code" : "<legend>"},
 		{"name" : "section" , "code" : "<section>\n\t\n\b</section>"},
 		{"name" : "article" , "code" : "<article>\n\t\n\b</article>"},
-		{"name" : "header" , "code" : "<header>\n\t\n\b</header>"},
-		{"name" : "footer" , "code" : "<footer>\n\t\n\b</footer>"},
+		{"name" : "header" , "codeStart" : "<header>\n" , "codeEnd" : "</header>\n"},
+		{"name" : "footer" , "codeStart" : "<footer>\n" , "codeEnd" : "</footer>\n"},
 		{"name" : "address" , "code" : "<address>"},
 		{"name" : "dialog" , "code" : "<dialog>"},
 		{"name" : "strong" , "code" : "<strong>|</strong>"},
@@ -170,27 +170,40 @@ var objElements = {
 //contains the documents data and HTML contents
 var objDocument = {
 	"data" : [
-		{"type" : "html"},
-		{"lang" : "en"},
-		{"locale" : "en-US"},
-		{"charset" : "UTF-8"}
+		{"type" : "html" , "lang" : "en" , "locale" : "en-US" , "charset" : "UTF-8"}
 	],
 	"contents" : [
-		{"name" : "dock type" , "code" : "<!DOCTYPE HTML>\n", "objID" : "1" , "parent" : "0"},
-		{"name" : "H T M L" , "code" : "<html lang=\"\">\n\t|\n</html>" , "objID" : "2" , "parent" : "0"},
-		{"name" : "head" , "code" : "<head>\n\t|\n</head>" , "objID" : "3" , "parent" : "2"},
-		{"name" : "body" , "code" : "<body>\n\t|\n</body>" , "objID" : "4" , "parent" : "2"}
+		{"name" : "dock type" , "codeStart" : "<!DOCTYPE HTML>" , "codeEnd" : "\n" , "objID" : 1 , "parent" : 0 , "hasChild" : false , "processed" : false},
+		{"name" : "H T M L" , "codeStart" : "<html lang=\"\">\n" , "codeEnd" : "\n</html>" , "objID" : 2 , "parent" : 0 , "hasChild" : true , "processed" : false},
+		{"name" : "head" , "codeStart" : "<head>\n" , "codeEnd" : "\n</head>\n" , "objID" : 3 , "parent" : 2 , "hasChild" : false , "processed" : false},
+		{"name" : "body" , "codeStart" : "<body>\n" , "codeEnd" : "\n</body>" , "objID" : 4 , "parent" : 2 , "hasChild" : true , "processed" : false}
 	]
-
 };
 
 //displays the HTML code in the textarea #output
 function displayDoc(){
 outputCode = "";
-	$.each(objDocument.contents, function(key,val){
-		outputCode += val.code;
+	$.each(objDocument.contents, function(i,val){
+		if(objDocument.contents[i].hasChild === true && objDocument.contents[i].processed !== true){
+			outputCode += val.codeStart;
+			$.each(objDocument.contents, function(j,valu){
+				if(objDocument.contents[j].processed !== true && 
+					objDocument.contents[j].parent === objDocument.contents[i].objID){
+					outputCode += (valu.codeStart + valu.codeEnd);
+					objDocument.contents[j].processed = true;
+				}
+			});
+				outputCode += val.codeEnd;
+				objDocument.contents[i].processed = true;
+		}else if(objDocument.contents[i].hasChild === false && objDocument.contents[i].processed !== true){
+			outputCode += (val.codeStart + val.codeEnd);
+			objDocument.contents[i].processed = true;
+		}
 	});
 	$('#output').text(outputCode);
+	$.each(objDocument.contents, function(k,v){
+		objDocument.contents[k].processed = false;
+	});
 }
 
 //Posts messages and results to ARIA-live
@@ -204,22 +217,39 @@ function processResults(resultString){
 	for(var i in resultString){
 		var word = resultString.split(' ');
 	}
-	var cmd = word[0], ele = word[1], code;
-		$.each(objElements.html, function(i,v){
-			if(v.name == ele){
-				code = v.code;
-				outputToDoc(ele,code);
-			}
-		});
-		displayDoc();
-		postToLive(resultString, "success");
+	var cmd = word[0], ele = word[1], codeStart, codeEnd;
+	switch(cmd){
+		case "insert":
+			$.each(objElements.html, function(i,v){
+				if(v.name == ele){
+					codeStart = v.codeStart;
+					codeEnd = v.codeEnd;
+					outputToDoc(ele,codeStart,codeEnd);
+				}
+			});
+			displayDoc();
+			postToLive(resultString, "success");
+			break;
+		
+		case "select":
+			$.makeArray(objDocument.contents);
+			var selected = $.inArray(ele, objDocument.contents);
+			postToLive(selected, "caution");
+			break;
+		
+		default:
+			postToLive(resultString, "success");
+	}
 }
 
 //Assigns objID, and adds HTML element to doc obj array
-function outputToDoc(name,code){
+function outputToDoc(name,codeStart,codeEnd){
 
 	var arrayCount = (objDocument.contents.length);
-	var obj = {"name" : name , "code" : code , "objID" : arrayCount , "parent" : "4"};
+	var obj = {"name" : name , "codeStart" : codeStart , "codeEnd" : codeEnd , "objID" : ++arrayCount , "parent" : 4 , "hasChild" : false , "processed" : false};
+	if(obj.parent !== '0'){
+		
+	}
 	objDocument.contents.push(obj);
 } 
 
