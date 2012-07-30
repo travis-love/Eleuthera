@@ -13,8 +13,10 @@
 	<link rel="stylesheet" href="assets/css/style.css" type="text/css" media="screen" />
 	
 <script src="assets/js/jquery-1.7.2.min.js"></script>
-<script src="http://wami.csail.mit.edu/wami-2.0.js?prettyPrint=true"></script>
+<!--<script src="http://wami.csail.mit.edu/wami-2.0.js"></script>-->
+<link rel="stylesheet" href="assets/js/CodeMirror/lib/codemirror.css">
 <script src="assets/js/bootLoader.js"></script>
+
 
 </head>
 <body>
@@ -28,10 +30,17 @@
 				<div id="live" role="log" aria-live="polite" aria-atomic="true" aria-relevant="additions">
 				</div>
 				<div id="properties">
-					<p>After clicking 'allow' and 'remember' in the flash security pop-up, click the microphone icon to start/stop recording.<br/>You can say "Hello WAMI", "I want a cracker", or "Feed me!"</p>
+					<p>After clicking 'allow' and 'remember' in the flash security pop-up, click the microphone icon to start/stop recording.<br/>You can say "Insert Header" or "Insert Footer".</p>
+					<input type="text" id="input" cols="25"/>
+					<button id="submit">input</button>
+					<script type="text/javascript">
+					$('#submit').on('click', function(){
+					Ele.postToLive("Ignition","success");
+					});</script>
 				</div>
-				<div id="">
-					<textarea id="output" style="width:80%;height:400px;"></textarea>
+				<div id="output">
+					<textarea name="code" id="code" style="width:90%;height:200px;"></textarea>
+					<iframe id="preview" style="width:90%;height:200px;"></iframe>
 				</div>
 			</section>
 			<section id="outline" class="border">
@@ -58,4 +67,12 @@
 
 
 </body>
+<script src="assets/js/CodeMirror/lib/codemirror.js"></script>
+<script src="assets/js/CodeMirror/mode/htmlmixed/htmlmixed.js"></script>
+<script src="assets/js/CodeMirror/mode/xml/xml.js"></script>
+<script src="assets/js/CodeMirror/mode/javascript/javascript.js"></script>
+<script src="assets/js/CodeMirror/mode/css/css.js"></script>
+<script type="text/javascript">
+
+</script>
 </html>
