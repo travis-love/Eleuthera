@@ -34,9 +34,7 @@
 					<input type="text" id="input" cols="25"/>
 					<button id="submit">input</button>
 					<script type="text/javascript">
-					$('#submit').on('click', function(){
-					Ele.postToLive("Ignition","success");
-					});</script>
+					$('#submit').click(Ele.processResults($('#input').val()));</script>
 				</div>
 				<div id="output">
 					<textarea name="code" id="code" style="width:90%;height:200px;"></textarea>

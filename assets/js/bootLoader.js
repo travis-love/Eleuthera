@@ -1,7 +1,8 @@
 var Ele = {};
 	
-var Eleuthera; 
+
 Ele.loadWAMI = function() {
+var Eleuthera; 
 
 //create the grammar
 var header = 
@@ -30,11 +31,11 @@ var audit =
 		devKey : "a6db053ed80bc7624909e622ce5d3a24",
 		guiID : "properties",
 		grammar : grammar,
-		onReady : onWamiReady,
-		onRecognition : onWamiRecognition,
-		onRecognitionResult : onWamiRecognitionResult,
-		onError : onWamiError,
-		onTimeout : onWamiTimeout
+		onReady : Ele.onWamiReady,
+		onRecognition : Ele.onWamiRecognition,
+		onRecognitionResult : Ele.onWamiRecognitionResult,
+		onError : Ele.onWamiError,
+		onTimeout : Ele.onWamiTimeout
         }; 
 
     //Create your WAMI application with the settings and grammar we just created
@@ -42,16 +43,15 @@ var audit =
 };
 
 
-function onWamiReady(){
-	postToLive("WAMI Loaded", "success");
-	displayDoc();
-}
+Ele.onWamiReady = function(){
+	Ele.postToLive("WAMI Loaded", "success");
+};
 
-function onWamiRecognitionResult(result) {
+Ele.onWamiRecognitionResult = function(result) {
 			    Wami.utils.debug(result);
-}
+};
 
-function onWamiRecognition(result) {
+Ele.onWamiRecognition = function(result) {
 			    Wami.utils.debug(result);
 				var resultString = (result.text());
 				if(result.settled()) {
@@ -59,21 +59,17 @@ function onWamiRecognition(result) {
 				}else{
 					Ele.postToLive(resultString, "caution");
 				}
-}
+};
 
-function onWamiError(type, message){
+Ele.onWamiError = function(type, message){
 	postToLive("There was a problem loading...", "error");
 		console.log("WAMI error: type  = " + type + ", message = " + message);
-}
+};
 
-function onWamiTimeout() {
+Ele.onWamiTimeout = function() {
 	postToLive("WAMI has timed out, sadly you must refresh...", "caution");
-	}
+	};
 
-//DOM global vars
-var live = $('#live');
-
-var outputString, outputCode;
 
 //contains phonetics and HTML code pairs
 var objElements = {
@@ -152,8 +148,8 @@ var objElements = {
 		{"name" : "legend" , "code" : "<legend>"},
 		{"name" : "section" , "code" : "<section>\n\t\n\b</section>"},
 		{"name" : "article" , "code" : "<article>\n\t\n\b</article>"},
-		{"name" : "header" , "codeStart" : "<header>\n" , "codeEnd" : "</header>\n"},
-		{"name" : "footer" , "codeStart" : "<footer>\n" , "codeEnd" : "</footer>\n"},
+		{"name" : "header" , "code" : "</header>"},
+		{"name" : "footer" , "code" : "<footer/>"},
 		{"name" : "address" , "code" : "<address>"},
 		{"name" : "dialog" , "code" : "<dialog>"},
 		{"name" : "strong" , "code" : "<strong>|</strong>"},
@@ -167,65 +163,9 @@ var objElements = {
 	]
 };
 
-//contains the documents data and HTML contents
-var objDocument = {
-	"data" : [
-		{"type" : "html" , "lang" : "en" , "locale" : "en-US" , "charset" : "UTF-8" , "children" : [1,2,3,4]}
-	],
-	"contents" : [
-		{"name" : "dock type" , "codeStart" : "<!DOCTYPE HTML>" , "codeEnd" : "\n" , "objID" : 1 , "parent" : 0 , "hasChild" : false , "processed" : false},
-		{"name" : "H T M L" , "codeStart" : "<html lang=\"\">\n" , "codeEnd" : "\n</html>" , "objID" : 2 , "parent" : 0 , "hasChild" : true , "children" : [3.4] , "processed" : false},
-		{"name" : "head" , "codeStart" : "<head>\n" , "codeEnd" : "\n</head>\n" , "objID" : 3 , "parent" : 2 , "hasChild" : false , "processed" : false},
-		{"name" : "body" , "codeStart" : "<body>\n" , "codeEnd" : "\n</body>" , "objID" : 4 , "parent" : 2 , "processed" : false}
-	]
-};
-
-//displays the HTML code in the textarea #output
-Ele.displayDoc = function(){
-outputCode = "";
-$.each(objDocument.contents, function(i,val){
-if(objDocument.contents[i].hasChild === true && objDocument.contents[i].processed !== true){
-outputCode += val.codeStart;
-$.each(objDocument.contents, function(j,valu){
-if(objDocument.contents[j].processed !== true &&
-objDocument.contents[j].parent === objDocument.contents[i].objID){
-outputCode += (valu.codeStart + valu.codeEnd);
-objDocument.contents[j].processed = true;
-}
-});
-outputCode += val.codeEnd;
-objDocument.contents[i].processed = true;
-}else if(objDocument.contents[i].hasChild === false && objDocument.contents[i].processed !== true){
-outputCode += (val.codeStart + val.codeEnd);
-objDocument.contents[i].processed = true;
-}
-});
-$('#code').text(outputCode);
-$.each(objDocument.contents, function(k,v){
-objDocument.contents[k].processed = false;
-});
-};
-
-/* function getChildren(children){
-	var str = "";
-	for(x=0;x<children.length;x++){
-		if(objDocument.contents[(children[x] - 1)].hasChild !== true && objDocument.contents[(children[x] - 1)].processed !== true){
-			str += (objDocument.contents[(children[x] - 1)].codeStart + objDocument.contents[(children[x] - 1)].codeEnd);
-			objDocument.contents[(children[x] - 1)].processed = true;
-		}else if(objDocument.contents[(children[x] - 1)].hasChild === true && objDocument.contents[(children[x] - 1)].processed !== true){
-			str += objDocument.contents[(children[x] - 1)].codeStart;
-			str += getChildren(objDocument.contents[(children[x] - 1)].children);
-			str += objDocument.contents[(children[x] - 1)].codeEnd;
-			objDocument.contents[(children[x] - 1)].processed = true;
-		}
-	
-	}
-	
-	return str;
-} */
-
 //Posts messages and results to ARIA-live
 Ele.postToLive = function(message, classString){
+	var live = $('#live');
 	live.append('<p>' + message + '</p>').addClass(classString).slideDown(300).delay(4000).slideUp(300);
 	setInterval(function(){live.empty().removeClass();} ,5000);
 	};
@@ -234,22 +174,19 @@ Ele.postToLive = function(message, classString){
 Ele.processResults = function(resultString){
 	var word = resultString.split(' ');
 	var cmd = word[0], ele = word[1], codeStart, codeEnd;
+	var previewer = $('#preview');
+		var preview =  previewer.contentDocument ||  previewer.contentWindow.document;
 	switch(cmd){
 		case "insert":
 			$.each(objElements.html, function(i,v){
 				if(v.name == ele){
-					codeStart = v.codeStart;
-					codeEnd = v.codeEnd;
-					Ele.outputToDoc(ele,codeStart,codeEnd);
+					$(preview).append(v.code);
 				}
 			});
-			Ele.displayDoc();
 			Ele.postToLive(resultString, "success");
 			break;
 		
 		case "select":
-			$.makeArray(objDocument.contents);
-			var selected = $.inArray(ele, objDocument.contents);
 			Ele.postToLive(selected, "caution");
 			break;
 		
@@ -258,25 +195,13 @@ Ele.processResults = function(resultString){
 	}
 };
 
-//Assigns objID, and adds HTML element to doc obj array
-Ele.outputToDoc = function(name,codeStart,codeEnd){
 
-	var arrayCount = (objDocument.contents.length);
-	var obj = {"name" : name , "codeStart" : codeStart , "codeEnd" : codeEnd , "objID" : ++arrayCount , "parent" : 4 , "hasChild" : false , "processed" : false};
-	if(obj.parent !== '0'){
-		
-	}
-	objDocument.contents.push(obj);
-/* 	objDocument.contents[3].parent.push(arrayCount);
-	objDocument.data[0].children.push(arrayCount); */
-};
 
-//Ele.loadWAMI();
 
 $(document).ready(function(){
+	var live = $('#live');
 	live.hide();
 	Ele.postToLive("WAMI Loaded", "success");
-	Ele.displayDoc();
 	
  var delay;
       // Initialize CodeMirror editor with a nice html5 canvas demo.
