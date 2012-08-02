@@ -42,7 +42,6 @@ var audit =
   	Eleuthera = new Wami.App(options);
 };
 
-
 Ele.onWamiReady = function(){
 	Ele.postToLive("WAMI Loaded", "success");
 };
@@ -143,25 +142,34 @@ var objElements = {
 		{"name" : "source" , "code" : "<source>"},
 		{"name" : "caption" , "code" : "<caption>"},
 		{"name" : "column group" , "code" : "<colgroup>"},
-		{"name" : "button" , "code" : "<button>|</button>"},
+		{"name" : "button" , "code" : "<button></button>"},
 		{"name" : "option group" , "code" : "<optgroup>"},
 		{"name" : "legend" , "code" : "<legend>"},
-		{"name" : "section" , "code" : "<section>\n\t\n\b</section>"},
-		{"name" : "article" , "code" : "<article>\n\t\n\b</article>"},
-		{"name" : "header" , "code" : "</header>"},
+		{"name" : "section" , "code" : "<section/>"},
+		{"name" : "article" , "code" : "<article/>"},
+		{"name" : "header" , "code" : "<header/>"},
 		{"name" : "footer" , "code" : "<footer/>"},
 		{"name" : "address" , "code" : "<address>"},
 		{"name" : "dialog" , "code" : "<dialog>"},
-		{"name" : "strong" , "code" : "<strong>|</strong>"},
+		{"name" : "strong" , "code" : "<strong></strong>"},
 		{"name" : "progress" , "code" : "<progress>"},
 		{"name" : "field set" , "code" : "<fieldset>"},
 		{"name" : "data grid" , "code" : "<datagrid>"},
 		{"name" : "data list" , "code" : "<datalist>"},
 		{"name" : "keygen" , "code" : "<keygen>"},
 		{"name" : "output" , "code" : "<output>"},
-		{"name" : "details" , "code" : "<details>"}
+		{"name" : "details" , "code" : "<details>"},
+		{"name" : "div" , "code" : "<div/>"}
 	]
 };
+
+//index html for easy search
+var easyCodeIndex = {};
+$(function(){
+	$.each(objElements.html, function(i,v){
+		easyCodeIndex[v.name] = v.code;
+	});
+}());
 
 //Posts messages and results to ARIA-live
 Ele.postToLive = function(message, classString){
@@ -173,54 +181,76 @@ Ele.postToLive = function(message, classString){
 //Separates words, and finds matches	
 Ele.processResults = function(resultString){
 	var word = resultString.split(' ');
-	var cmd = word[0], ele = word[1], codeStart, codeEnd;
-	var previewer = $('#preview');
-		var preview =  previewer.contentDocument ||  previewer.contentWindow.document;
+	var cmd = word[0], ele = word[1];
+	
 	switch(cmd){
 		case "insert":
-			$.each(objElements.html, function(i,v){
-				if(v.name == ele){
-					$(preview).append(v.code);
-				}
-			});
+			$('#preview').contents().find('body').append(easyCodeIndex[ele]);
 			Ele.postToLive(resultString, "success");
 			break;
 		
 		case "select":
-			Ele.postToLive(selected, "caution");
+			$('#preview').contents().find(ele).addClass('selected');
+			Ele.postToLive(resultString, "success");
 			break;
 		
 		default:
-			Ele.postToLive(resultString, "success");
+			Ele.postToLive("Did you say: " + resultString + "?", "error");
 	}
+	
 };
 
+ 
+Ele.loadIframe = function(){
+	
+	var cssLink = document.createElement('link') 
+	cssLink.href = 'assets/css/iframe.css'; 
+	cssLink .rel = 'stylesheet'; 
+	cssLink .type = 'text/css'; 
+	$('#preview').contents().find('head').append(cssLink);
+	//possible other dependencies
+};
 
-
+//method to update textarea (or Codemirror) value
+Ele.iframeToText = function(){
+// Get current body text
+var html = $('#preview').contents().find('html').html();
+$('#code').val(html);	
+};
 
 $(document).ready(function(){
-	var live = $('#live');
-	live.hide();
-	Ele.postToLive("WAMI Loaded", "success");
 	
- var delay;
-      // Initialize CodeMirror editor with a nice html5 canvas demo.
-      var editor = CodeMirror.fromTextArea(document.getElementById('code'), {
-        mode: 'text/html',
-        tabMode: 'indent',
-        onChange: function() {
-          clearTimeout(delay);
-          delay = setTimeout(updatePreview, 300);
-        }
-      });
-      
-      function updatePreview() {
-        var previewer = document.getElementById('preview');
-		var preview =  previewer.contentDocument ||  previewer.contentWindow.document;
-        preview.open();
-        preview.write(editor.getValue());
-        preview.close();
-      }
-      setTimeout(updatePreview, 300);
+	//global vars
+	var live = $('#live');
+	$('#submit').on('click', function(){
+		Ele.processResults($('#input').val());
+	});
+	
+	//execute when initializing
+	live.hide();
+	
+	// Initialize CodeMirror editor
+	var delay;
+	var editor = CodeMirror.fromTextArea(document.getElementById('code'), {
+		mode: 'text/html',
+		tabMode: 'indent',
+		onChange: function() {
+		clearTimeout(delay);
+		delay = setTimeout(updatePreview, 300);
+		}
+	});
 
+	function updatePreview() {
+		var previewer = document.getElementById('preview');
+		var preview =  previewer.contentDocument ||  previewer.contentWindow.document;
+		preview.open();
+		preview.write(editor.getValue());
+		preview.close();
+	}
+	setTimeout(updatePreview, 300);
+
+	
+	Ele.loadIframe();
+	Ele.iframeToText();
+	Ele.postToLive("Document Loaded", "success");
 });

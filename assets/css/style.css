@@ -87,7 +87,7 @@ body {background-color:#999;}
 
 
 #editor {width:528px;height:768px;overflow:hidden;margin:0;padding:0;}
-div#live {}
+
 div#live.success{height:35px;padding:10px;margin:0;background: #d2ff52;
 background: -moz-linear-gradient(top,  #d2ff52 0%, #75c926 100%);
 background: -webkit-gradient(linear, left top, left bottom, color-stop(0%,#d2ff52), color-stop(100%,#75c926));
@@ -115,6 +115,9 @@ filter: progid:DXImageTransform.Microsoft.gradient( startColorstr='#ff3019', end
 div#live p {margin:0;padding:0;}
 
 div#properties {margin:0;padding:10px;border-bottom:2px solid #333;border-top:2px solid #333;}
+
+iframe#preview {border:0;margin:0 auto;outline:0;width:99%;height:300px;}
+#code {border:0;margin:0 auto;outline:0;width:99%;height:200px;}
 
 #outline {width:290px;height:768px;float:right;}
 #manager {width:290px;height:380px;}
