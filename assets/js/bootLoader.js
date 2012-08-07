@@ -6,7 +6,7 @@ var Ele = Ele || {};
 	var live = $('#live');
 	live.hide();
 	$('#submit').on('click', function(){
-		Ele.processResults($('#input').val());
+		Ele.action.processResults($('#input').val());
 	});
 
 	//code library and return methods
@@ -131,7 +131,8 @@ var Ele = Ele || {};
 			var header = 
 				"#JSGF V1.0;\n" +
 				"grammar Eleuthera;\n" +
-				"public <top> = (<command> <element> [<audit> <command> <element>]*);\n";
+				"public <top> = (<command> <element>\n" +
+								" [<audit> (<command> <element> <name>) | (<element> <name>)]*);\n";
 				
 			var commands = 
 				"<command> = (insert | append | prepend | select | deselect | remove | erase | delete);\n";
@@ -142,9 +143,12 @@ var Ele = Ele || {};
 			var audit = 
 				"<audit> = (with | and)+ | here;";
 				
+			var name = 
+				"<name> = container | menu | navigation | wrapper | content | inner | title | success | error;";
+				
 			var grammar = {
 				language : "en-us",
-				grammar : header + commands + elements + audit,
+				grammar : header + commands + elements + audit + name,
 				aggregate : false,
 				incremental : false
 			};
@@ -163,8 +167,13 @@ var Ele = Ele || {};
 
 			//Create your WAMI application with the settings and grammar we just created
 			Eleuthera = new Wami.App(options);
-			
-		return Eleuthera;
+				
+			if(!Eleuthera){
+				$('#properties p').after('<input type="text" id="input" cols="25"/><button id="submit">input</button>');
+				Ele.action.postToLive("WAMI Failed To Load...","error");
+			}else{
+				return Eleuthera;
+			}
 		};
 		
 		that.onWamiReady = function(){
@@ -202,8 +211,9 @@ var Ele = Ele || {};
 		var that = {};
 		//Posts messages and results to ARIA-live
 		that.postToLive = function(message, classString){
+			var live = $('#live');
 			live.append('<p>' + message + '</p>').addClass(classString).slideDown(300).delay(4000).slideUp(300);
-			setInterval(function(){live.empty().removeClass();} ,5000);
+				setInterval(function(){live.empty().removeClass();} ,5000);
 		};
 		
 		//Separates words, and finds matches	
@@ -213,7 +223,7 @@ var Ele = Ele || {};
 			
 			switch(cmd){
 				case "insert":
-					$('#preview').contents().find('body').append(easyCodeIndex[ele]);
+					$('#preview').contents().find('body').append(Ele.dictionary.html[ele]);
 					that.postToLive(resultString, "success");
 					break;
 				
@@ -234,25 +244,25 @@ var Ele = Ele || {};
 	
 
 	//methods to load/update iframe and textarea
-	Ele.textEdit = function(){
+	function textEdit(){
 		
 		var that = {};
-		that.iframe = $("preview");
-		that.iframeWindow = that.iframe[0].contentWindow;
-		that.iframeDocument = iframeWindow.document;
+		that.iframe = $("#preview");
+		/* that.iframeWindow = that.iframe[0].contentWindow;
+		that.iframeDocument = iframeWindow.document; */
 		
 		//method to load iframe/codemirror
-		that.load = function() {
-			that.iframe.load(function () {
+		that.init = function() {
+			/* that.iframe.load(function () {
 				//var iframeDoc = that.iframe.contents();
 				that.jQuery = iframeWindow.jQuery;
 				that.renderUIOContainer = that.jQuery("body", that.iframeDocument);
-				that.jQuery(that.iframeDocument).ready(that.events.afterRender.fire);
-			});
+				that.jQuery(that.iframeDocument).ready(that.editor);
+			}); */
 		
 			// Initialize CodeMirror editor
 			var delay;
-			that.editor = CodeMirror.fromTextArea(document.getElementById('code'), {
+			editor = CodeMirror.fromTextArea(document.getElementById('code'), {
 				mode: 'text/html',
 				tabMode: 'indent',
 				onChange: function() {
@@ -279,7 +289,9 @@ var Ele = Ele || {};
 
 	return that;
 	};
+	Ele.textEdit = textEdit();
 
 	Ele.WAMI.loadWAMI();
+	Ele.textEdit.init();
 	
 })(jQuery, Ele, CodeMirror, Wami);
