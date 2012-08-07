@@ -13,8 +13,9 @@
 	<link rel="stylesheet" href="assets/css/style.css" type="text/css" media="screen" />
 	
 <script src="assets/js/jquery-1.7.2.min.js"></script>
-<!--<script src="http://wami.csail.mit.edu/wami-2.0.js"></script>-->
+<script src="http://wami.csail.mit.edu/wami-2.0.js"></script>
 <link rel="stylesheet" href="assets/js/CodeMirror/lib/codemirror.css">
+<script src="assets/js/CodeMirror/lib/codemirror.js"></script>
 <script src="assets/js/bootLoader.js"></script>
 
 
@@ -33,12 +34,10 @@
 					<p>After clicking 'allow' and 'remember' in the flash security pop-up, click the microphone icon to start/stop recording.<br/>You can say "Insert Header" or "Insert Footer".</p>
 					<input type="text" id="input" cols="25"/>
 					<button id="submit">input</button>
-					<script type="text/javascript">
-					$('#submit').click(Ele.processResults($('#input').val()));</script>
 				</div>
 				<div id="output">
-					<textarea name="code" id="code" style="width:90%;height:200px;"></textarea>
-					<iframe id="preview" style="width:90%;height:200px;"></iframe>
+					<textarea name="code" id="code"></textarea>
+					<iframe id="preview"></iframe>
 				</div>
 			</section>
 			<section id="outline" class="border">
@@ -65,7 +64,7 @@
 
 
 </body>
-<script src="assets/js/CodeMirror/lib/codemirror.js"></script>
+
 <script src="assets/js/CodeMirror/mode/htmlmixed/htmlmixed.js"></script>
 <script src="assets/js/CodeMirror/mode/xml/xml.js"></script>
 <script src="assets/js/CodeMirror/mode/javascript/javascript.js"></script>
