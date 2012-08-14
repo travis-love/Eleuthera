@@ -19,7 +19,7 @@ var Ele = Ele || {};
 		//contains phonetics and code pairs
 		objElements = {
 			"html" : [
-				{"name" : "html5" , "code" : "<!DOCTYPE html>\n<html lang=\"en\">\n<head>\n</head>\n<body>\n\t\n</body>\n</html>"},
+				{"name" : "html5" , "code" : "<!DOCTYPE html>\n<html lang=\"en\">\n<head>\n</head>\n<body class=\"selected\">\n\t\n</body>\n</html>"},
 				{"name" : "dock type" , "code" : "<!DOCTYPE HTML>\n"},
 				{"name" : "H T M L" , "code" : "<html lang=\"\">\n\t|\n</html>"},
 				{"name" : "head" , "code" : "<head>\n\t|\n</head>"},
@@ -107,6 +107,10 @@ var Ele = Ele || {};
 				{"name" : "output" , "code" : "<output>"},
 				{"name" : "details" , "code" : "<details>"},
 				{"name" : "div" , "code" : "<div/>"}
+			],
+		"selectors" : [
+			{"name" : "ID" , "code" : "#"},
+			{"name" : "class" , "code" : "."}
 			]
 		};
 		
@@ -121,13 +125,29 @@ var Ele = Ele || {};
 		
 		//html code indexed
 		that.html = that.indexCode(objElements.html);
-		
+		that.selectors = that.indexCode(objElements.selectors);
 		return that;
 	};
 	
 	
 	function action() {
-		var that = {}, selected = 'body';
+		var that = {};
+		that.selected = Ele.globals.preview.contents().find('body');
+		
+		
+		that.select = function(select){
+			if(!Ele.globals.preview.contents().find(select).hasClass('selected')){
+				that.selected.toggleClass('selected');
+				that.selected = Ele.globals.preview.contents().find(select);
+				that.selected.toggleClass('selected');
+			}
+		};
+		
+		//resets selected element
+		that.reset = function(){
+			that.select('body');
+		};
+		
 		//Posts messages and results to ARIA-live
 		that.postToLive = function(message, classString){
 			Ele.globals.live.append('<p>' + message + '</p>').addClass(classString).slideDown(300).delay(4000).slideUp(300);
@@ -137,20 +157,38 @@ var Ele = Ele || {};
 		//Separates words, and finds matches	
 		that.processResults = function(resultString){
 			var word = resultString.split(' ');
-			var cmd = word[0], ele = word[1];
+			var cmd = word[0], ele = word[1], name = word[2];
 			
 			switch(cmd){
 				case "insert":
-					Ele.globals.preview.contents().find(selected).append(Ele.dictionary.html[ele]);
+					that.selected.append(Ele.dictionary.html[ele]);
 					that.postToLive(resultString, "success");
 					break;
 
+				case "add":
+					
+					switch(ele){
+						case "class" :
+							that.selected.addClass(name);
+							that.postToLive(resultString, "success");
+							break;
+						
+						case "ID" :
+							that.selected.attr("id", name);
+							that.postToLive(resultString, "success");
+							break;
+					}
+					break;
+					
 				case "select":
-					selected = ele;
-					Ele.globals.preview.contents().find(selected).addClass('selected');
+					that.select(ele);
 					that.postToLive(resultString, "success");
 					break;
 				
+				case "reset":
+					that.reset();
+					break;
+					
 				default:
 					that.postToLive("Did you say: " + resultString + "?", "error");
 			}
@@ -169,14 +207,13 @@ var Ele = Ele || {};
 			var header = 
 				"#JSGF V1.0;\n" +
 				"grammar Eleuthera;\n" +
-				"public <top> = (<command> <element>\n" +
-								" [<audit> (<command> <element> <name>) | (<element> <name>)]*);\n";
+				"public <top> = (<command> <element> [<name>]*);\n";
 				
 			var commands = 
-				"<command> = (insert | append | prepend | select | deselect | remove | erase | delete);\n";
+				"<command> = (insert | append | prepend | select | add | deselect | remove | erase | delete);\n";
 				
 			var elements = 
-				"<element> = (style | link | article | aside | details | caption | figure | footer | header | group | nav | section | function | var);\n";
+				"<element> = (style | link | article | aside | details | caption | figure | footer | header | group | nav | section | div | ID | class);\n";
 				
 			var audit = 
 				"<audit> = (with | and)+ | here;";
@@ -206,12 +243,7 @@ var Ele = Ele || {};
 			//Create your WAMI application with the settings and grammar we just created
 			Eleuthera = new Wami.App(options);
 				
-			if(!Eleuthera){
-				$('#properties p').after('<input type="text" id="input" cols="25"/><button id="submit">input</button>');
-				Ele.action.postToLive("WAMI Failed To Load...","error");
-			}else{
-				return Eleuthera;
-			}
+			return Eleuthera;
 		};
 		
 		that.onWamiReady = function(){
@@ -269,10 +301,12 @@ var Ele = Ele || {};
 				delay = setTimeout(that.update, 300);
 				}
 			});
+			
 			switch(lang){
 				case "html":
-					that.editor.setValue(Ele.dictionary.html["html5"]);
 					editorValue = Ele.dictionary.html["html5"];
+					that.editor.setValue(editorValue);
+					that.update();
 					break;
 				case "css":
 					break;
@@ -287,22 +321,21 @@ var Ele = Ele || {};
 				that.iframeDocument = iframeWindow.document;		
 				that.jQuery = iframeWindow.jQuery;
 				that.renderUIOContainer = that.jQuery("body", that.iframeDocument);
-				that.jQuery(that.iframeDocument).ready();
+				that.jQuery(that.iframeDocument).ready(that.update);
 			});
 		};
 	
 		//method to update iframe
 		that.update = function() {
 			editorValue = that.editor.getValue();
-			Ele.textEdit.iframe.contents().html(editorValue);
+			that.iframe.contents().html(editorValue);
 		};
-		setTimeout(that.update, 300);
 		
 		//method to update textarea (or Codemirror) value
 		that.toText = function(){
 			// Get current body text
-			var html = Ele.textEdit.editor.getValue();
-			Ele.textEdit.editor.setValue(html);	
+			editorValue = that.iframe.contents().find('html').html();
+			Ele.textEdit.editor.setValue(editorValue.replace(/>/ig, '>\n'));	
 		};
 
 	return that;
