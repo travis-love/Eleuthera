@@ -2,7 +2,7 @@ var Ele = Ele || {};
 
 (function($, Ele, CodeMirror, Wami){
 
-	//globals
+	//bad coding, but these are how I made DOM'S global
 	function globals(){
 		var that = {};
 			that.live = $('#live');
@@ -19,78 +19,67 @@ var Ele = Ele || {};
 		//contains phonetics and code pairs
 		objElements = {
 			"html" : [
-				{"name" : "html5" , "code" : "<!DOCTYPE html>\n<html lang=\"en\">\n<head>\n</head>\n<body class=\"selected\">\n\t\n</body>\n</html>"},
-				{"name" : "dock type" , "code" : "<!DOCTYPE HTML>\n"},
-				{"name" : "H T M L" , "code" : "<html lang=\"\">\n\t|\n</html>"},
-				{"name" : "head" , "code" : "<head>\n\t|\n</head>"},
-				{"name" : "body" , "code" : "<body>\n\t|\n</body>"},
-				{"name" : "anchor" , "code" : "<a href=\"\|\">"},
-				{"name" : "mail to" , "code" : "<a href=\"mailto:|\">"},
-				{"name" : "abbreviation" , "code" : "<abbr title=\"|\">"},
-				{"name" : "acronym" , "code" : "<acronym title=\"|\">"},
-				{"name" : "base" , "code" : "<base href=\"|\" />"},
-				{"name" : "bee D oh" , "code" : "<bdo dir=\"\">"},
-				{"name" : "are tea el" , "code" : "<bdo dir=\"rtl\">"},
-				{"name" : "el tea are" , "code" : "<bdo dir=\"ltr\">"},
-				{"name" : "stylesheet" , "code" : "<link rel=\"stylesheet\" type=\"text/css\" href=\"${1:style}.css\" media=\"all\" />"},
-				{"name" : "printsheet" , "code" : "<link rel=\"stylesheet\" type=\"text/css\" href=\"|print.css\" media=\"print\" />"},
-				{"name" : "fave icon" , "code" : "<link rel=\"shortcut icon\" type=\"image/x-icon\" href=\"|favicon.ico\" />"},
-				{"name" : "apple icon" , "code" : "<link rel=\"apple-touch-icon\" href=\"|favicon.png\" />"},
-				{"name" : "are es es" , "code" : "<link rel=\"alternate\" type=\"application/rss+xml\" title=\"RSS\" href=\"|rss.xml\" />"},
+				{"name" : "html5" , "code" : "<html>\n<head>\n</head>\n<body>\n\t\n</body>\n</html>"},
+				{"name" : "dock" , "code" : "<!DOCTYPE HTML>"},
+				{"name" : "markup" , "code" : "<html/>"},
+				{"name" : "head" , "code" : "<head/>"},
+				{"name" : "body" , "code" : "<body/>"},
+				{"name" : "anchor" , "code" : "<a href=\"\">"},
+				{"name" : "abbreviation" , "code" : "<abbr title=\"\">"},
+				{"name" : "acronym" , "code" : "<acronym title=\"\">"},
+				{"name" : "base" , "code" : "<base href=\"\" />"},
+				{"name" : "right" , "code" : "<bdo dir=\"rtl\">"},
+				{"name" : "left" , "code" : "<bdo dir=\"ltr\">"},
+				{"name" : "stylesheet" , "code" : "<link rel=\"stylesheet\" type=\"text/css\" href=\"assets/css/iframe.css\" media=\"all\" />"},
+				{"name" : "printsheet" , "code" : "<link rel=\"stylesheet\" type=\"text/css\" href=\"print.css\" media=\"print\" />"},
+				{"name" : "favicon" , "code" : "<link rel=\"shortcut icon\" type=\"image/x-icon\" href=\"favicon.ico\" />"},
+				{"name" : "apple" , "code" : "<link rel=\"apple-touch-icon\" href=\"favicon.png\" />"},
+				{"name" : "syndication" , "code" : "<link rel=\"alternate\" type=\"application/rss+xml\" title=\"RSS\" href=\"rss.xml\" />"},
 				{"name" : "atom" , "code" : "<link rel=\"alternate\" type=\"application/atom+xml\" title=\"Atom\" href=\"atom.xml\" />"},
-				{"name" : "meta you tea eff" , "code" : "<meta http-equiv=\"Content-Type\" content=\"text/html;charset=UTF-8\" />"},
-				{"name" : "meta windows" , "code" : "<meta http-equiv=\"Content-Type\" content=\"text/html;charset=windows-1251\" />"},
-				{"name" : "meta eye ee" , "code" : "<meta http-equiv=\"X-UA-Compatible\" content=\"IE=7\" />"},
-				{"name" : "style" , "code" : "<style type=\"text/css\">"},
+				{"name" : "meta" , "code" : "<meta http-equiv=\"Content-Type\" content=\"text/html;charset=UTF-8\" />"},
 				{"name" : "script" , "code" : "<script type=\"text/javascript\">"},
-				{"name" : "script source" , "code" : "<script type=\"text/javascript\" src=\"\">"},
 				{"name" : "image" , "code" : "<img src=\"\" alt=\"\" />"},
-				{"name" : "eye frame" , "code" : "<iframe src=\"\" frameborder=\"0\">"},
+				{"name" : "frame" , "code" : "<iframe src=\"\" frameborder=\"0\">"},
 				{"name" : "embed" , "code" : "<embed src=\"\" type=\"\" />"},
 				{"name" : "object" , "code" : "<object data=\"\" type=\"\">"},
 				{"name" : "parameter" , "code" : "<param name=\"\" value=\"\" />"},
 				{"name" : "form" , "code" : "<form action=\"\">"},
-				{"name" : "get form" , "code" : "<form action=\"\" method=\"get\">"},
-				{"name" : "post form" , "code" : "<form action=\"\" method=\"post\">"},
-				{"name" : "label for" , "code" : "<label for=\"\">"},
-				{"name" : "input" , "code" : "<input type=\"\" />"},
-				{"name" : "hidden input" , "code" : "<input type=\"hidden\" name=\"\" />"},
-				{"name" : "text input" , "code" : "<input type=\"text\" name=\"\" id=\"\" />"},
-				{"name" : "search input" , "code" : "<input type=\"search\" name=\"\" id=\"\" />"},
-				{"name" : "email input" , "code" : "<input type=\"email\" name=\"\" id=\"\" />"},
-				{"name" : "you are el input" , "code" : "<input type=\"url\" name=\"\" id=\"\" />"},
-				{"name" : "password input" , "code" : "<input type=\"password\" name=\"\" id=\"\" />"},
-				{"name" : "date time input" , "code" : "<input type=\"datetime\" name=\"\" id=\"\" />"},
-				{"name" : "date input" , "code" : "<input type=\"date\" name=\"\" id=\"\" />"},
-				{"name" : "locale input" , "code" : "<input type=\"datetime-local\" name=\"\" id=\"\" />"},
-				{"name" : "month input" , "code" : "<input type=\"month\" name=\"\" id=\"\" />"},
-				{"name" : "week input" , "code" : "<input type=\"week\" name=\"\" id=\"\" />"},
-				{"name" : "time input" , "code" : "<input type=\"time\" name=\"\" id=\"\" />"},
-				{"name" : "number input" , "code" : "<input type=\"number\" name=\"\" id=\"\" />"},
-				{"name" : "color input" , "code" : "<input type=\"color\" name=\"\" id=\"\" />"},
-				{"name" : "checkbox input" , "code" : "<input type=\"checkbox\" name=\"\" id=\"\" />"},
-				{"name" : "radio input" , "code" : "<input type=\"radio\" name=\"\" id=\"\" />"},
-				{"name" : "range input" , "code" : "<input type=\"range\" name=\"\" id=\"\" />"},
-				{"name" : "file input" , "code" : "<input type=\"file\" name=\"\" id=\"\" />"},
-				{"name" : "submit input" , "code" : "<input type=\"submit\" value=\"\" />"},
-				{"name" : "image input" , "code" : "<input type=\"image\" src=\"\" alt=\"\" />"},
-				{"name" : "reset input" , "code" : "<input type=\"reset\" value=\"\" />"},
-				{"name" : "button input" , "code" : "<input type=\"button\" value=\"\" />"},
+				{"name" : "label" , "code" : "<label for=\"\">"},
+				{"name" : "hidden" , "code" : "<input type=\"hidden\" name=\"\" />"},
+				{"name" : "text" , "code" : "<input type=\"text\" name=\"\" id=\"\" />"},
+				{"name" : "search" , "code" : "<input type=\"search\" name=\"\" id=\"\" />"},
+				{"name" : "email" , "code" : "<input type=\"email\" name=\"\" id=\"\" />"},
+				{"name" : "address" , "code" : "<input type=\"url\" name=\"\" id=\"\" />"},
+				{"name" : "password" , "code" : "<input type=\"password\" name=\"\" id=\"\" />"},
+				{"name" : "datetime" , "code" : "<input type=\"datetime\" name=\"\" id=\"\" />"},
+				{"name" : "date" , "code" : "<input type=\"date\" name=\"\" id=\"\" />"},
+				{"name" : "locale" , "code" : "<input type=\"datetime-local\" name=\"\" id=\"\" />"},
+				{"name" : "month" , "code" : "<input type=\"month\" name=\"\" id=\"\" />"},
+				{"name" : "week" , "code" : "<input type=\"week\" name=\"\" id=\"\" />"},
+				{"name" : "time" , "code" : "<input type=\"time\" name=\"\" id=\"\" />"},
+				{"name" : "number" , "code" : "<input type=\"number\" name=\"\" id=\"\" />"},
+				{"name" : "color" , "code" : "<input type=\"color\" name=\"\" id=\"\" />"},
+				{"name" : "checkbox" , "code" : "<input type=\"checkbox\" name=\"\" id=\"\" />"},
+				{"name" : "radio" , "code" : "<input type=\"radio\" name=\"\" id=\"\" />"},
+				{"name" : "range" , "code" : "<input type=\"range\" name=\"\" id=\"\" />"},
+				{"name" : "file" , "code" : "<input type=\"file\" name=\"\" id=\"\" />"},
+				{"name" : "submit" , "code" : "<input type=\"submit\" value=\"\" />"},
+				{"name" : "image" , "code" : "<input type=\"image\" src=\"\" alt=\"\" />"},
+				{"name" : "reset" , "code" : "<input type=\"reset\" value=\"\" />"},
 				{"name" : "selection" , "code" : "<select name=\"\" id=\"\"></select>"},
 				{"name" : "option" , "code" : "<option value=\"\"></option>"},
-				{"name" : "text area" , "code" : "<textarea name=\"\" id=\"\" cols=\"30\" rows=\"10\">"},
-				{"name" : "context menu" , "code" : "<menu type=\"context\">"},
-				{"name" : "toolbar menu" , "code" : "<menu type=\"toolbar\">"},
+				{"name" : "textarea" , "code" : "<textarea name=\"\" id=\"\" cols=\"30\" rows=\"10\">"},
+				{"name" : "context" , "code" : "<menu type=\"context\">"},
+				{"name" : "toolbar" , "code" : "<menu type=\"toolbar\">"},
 				{"name" : "video" , "code" : "<video src=\"\">"},
 				{"name" : "audio" , "code" : "<audio src=\"\">"},
-				{"name" : "ex em el in es" , "code" : "<html xmlns=\"http:\/\/www.w3.org\/1999\/xhtml\">"},
 				{"name" : "blockquote" , "code" : "<blockquote>"},
 				{"name" : "figure" , "code" : "<figure>"},
 				{"name" : "source" , "code" : "<source>"},
 				{"name" : "caption" , "code" : "<caption>"},
-				{"name" : "column group" , "code" : "<colgroup>"},
+				{"name" : "columns" , "code" : "<colgroup>"},
 				{"name" : "button" , "code" : "<button></button>"},
-				{"name" : "option group" , "code" : "<optgroup>"},
+				{"name" : "options" , "code" : "<optgroup>"},
 				{"name" : "legend" , "code" : "<legend>"},
 				{"name" : "section" , "code" : "<section/>"},
 				{"name" : "article" , "code" : "<article/>"},
@@ -100,21 +89,24 @@ var Ele = Ele || {};
 				{"name" : "dialog" , "code" : "<dialog>"},
 				{"name" : "strong" , "code" : "<strong></strong>"},
 				{"name" : "progress" , "code" : "<progress>"},
-				{"name" : "field set" , "code" : "<fieldset>"},
-				{"name" : "data grid" , "code" : "<datagrid>"},
-				{"name" : "data list" , "code" : "<datalist>"},
+				{"name" : "fieldset" , "code" : "<fieldset>"},
+				{"name" : "grid" , "code" : "<datagrid>"},
+				{"name" : "list" , "code" : "<datalist>"},
 				{"name" : "keygen" , "code" : "<keygen>"},
 				{"name" : "output" , "code" : "<output>"},
 				{"name" : "details" , "code" : "<details>"},
-				{"name" : "div" , "code" : "<div/>"}
+				{"name" : "div" , "code" : "<div/>"},
+				{"name" : "ordered" , "code" : "<ol/>"},
+				{"name" : "unordered" , "code" : "<ul/>"},
+				{"name" : "item" , "code" : "<li/>"}
 			],
 		"selectors" : [
-			{"name" : "ID" , "code" : "#"},
+			{"name" : "identity" , "code" : "#"},
 			{"name" : "class" , "code" : "."}
 			]
 		};
 		
-		//index method to use for easy search
+		//turns the JSON arrays to easy [name]:code pairs
 		that.indexCode = function(source){
 			var that = {};
 				$.each(source, function(i,v){
@@ -125,25 +117,36 @@ var Ele = Ele || {};
 		
 		//html code indexed
 		that.html = that.indexCode(objElements.html);
+		//indexed jquery selectors
 		that.selectors = that.indexCode(objElements.selectors);
+		
+		//end of dictionary()
 		return that;
 	};
 	
-	
+	//this is where all the app actions like "reset" or "processResults" go
 	function action() {
 		var that = {};
+		
+		//current DOM selection, default iframe body
 		that.selected = Ele.globals.preview.contents().find('body');
 		
-		
-		that.select = function(select){
-			if(!Ele.globals.preview.contents().find(select).hasClass('selected')){
-				that.selected.toggleClass('selected');
-				that.selected = Ele.globals.preview.contents().find(select);
-				that.selected.toggleClass('selected');
+		//selects DOM element or class\ID element - name
+		that.select = function(ele, name){
+			var select;
+			if(!name){
+				name = ""
+				select = ele+name; //i.e returns "footer"
+			}else{
+				select = (Ele.dictionary.selectors[ele]+name); //i.e. "class container" returns ".container"
 			}
+			
+			that.selected.removeClass('selected');//remove only class 'selected'
+			that.selected = Ele.globals.preview.contents().find(select);
+			that.selected.addClass('selected');
 		};
 		
-		//resets selected element
+		//resets selected DOM to iframe body
 		that.reset = function(){
 			that.select('body');
 		};
@@ -157,10 +160,13 @@ var Ele = Ele || {};
 		//Separates words, and finds matches	
 		that.processResults = function(resultString){
 			var word = resultString.split(' ');
-			var cmd = word[0], ele = word[1], name = word[2];
+			var cmd = word[0] /*command*/, 
+				ele = word[1] /*DOM or Selector*/,
+				name = word[2] /*selector name*/;
 			
 			switch(cmd){
 				case "insert":
+					//example, "insert div"
 					that.selected.append(Ele.dictionary.html[ele]);
 					that.postToLive(resultString, "success");
 					break;
@@ -168,20 +174,30 @@ var Ele = Ele || {};
 				case "add":
 					
 					switch(ele){
+						//example, "add class container"
 						case "class" :
 							that.selected.addClass(name);
 							that.postToLive(resultString, "success");
 							break;
 						
-						case "ID" :
+						//example, "add ID menu"
+						case "identity" :
 							that.selected.attr("id", name);
 							that.postToLive(resultString, "success");
 							break;
 					}
 					break;
 					
+				case "remove" :
+					//remove selected and reset selection
+					that.selected.remove(that.selected);
+					that.reset();
+					that.postToLive(resultString, "success");
+				break;
+				
 				case "select":
-					that.select(ele);
+					//example, "select div" or "select class container"
+					that.select(ele, name);
 					that.postToLive(resultString, "success");
 					break;
 				
@@ -189,49 +205,46 @@ var Ele = Ele || {};
 					that.reset();
 					break;
 					
-				default:
-					that.postToLive("Did you say: " + resultString + "?", "error");
+				
 			}
+		//iframe contents to Codemirror textarea
 		Ele.textEdit.toText();
 		};
 	return that;
 	}
 	
-	
+	//API methods for voice recognition service
 	function wami() {
 		
 		var Eleuthera, that = {}; 
 		
-		that.loadWAMI = function(){
+		that.loadWAMI = function(key, outputTo){
 			//create the grammar
 			var header = 
 				"#JSGF V1.0;\n" +
 				"grammar Eleuthera;\n" +
-				"public <top> = (<command> <element> [<name>]*);\n";
+				"public <top> = (<command> <element> [<name>]*);\n";//speech structure
 				
 			var commands = 
 				"<command> = (insert | append | prepend | select | add | deselect | remove | erase | delete);\n";
 				
 			var elements = 
-				"<element> = (style | link | article | aside | details | caption | figure | footer | header | group | nav | section | div | ID | class);\n";
-				
-			var audit = 
-				"<audit> = (with | and)+ | here;";
+				"<element> = /2/ dock | /2/ markup | /4/ head | /6/ body | /6/ anchor | /2/ abbreviation | /2/ acronym | /2/ base | /2/ right | /2/ left | /2/ stylesheet | /2/ printsheet | /2/ favicon | /2/ apple | /2/ syndication | /2/ atom | /2/ meta | /4/ script | /6/ image | /2/ frame | /4/ embed | /4/ object | /4/ parameter | /6/ form | /6/ label | /6/ hidden | /6/ text | /6/ search | /6/ email | /4/ address | /6/ password | /4/ datetime | /4/ locale | /4/ month | /4/ week | /4/ time | /4/ number | /4/ color | /6/ checkbox | /6/ radio | /4/ range | /4/ file | /6/ submit | /4/ image | /6/ reset | /4/ selection | /4/ option | /6/ textarea | /4/ context | /4/ toolbar | /6/ video | /6/ audio | /4/ blockquote | /4/ figure | /4/ source | /4/ caption | /4/ columns | /6/ button | /4/ options | /2/ legend | /8/ section | /8/ article | /8/ header | /8/ footer | /4/ address | /4/ dialog | /4/ strong | /4/ progress | /4/ set | /2/ grid | /4/ keygen | /4/ output | /4/ details | /8/ div | /6/ ordered | /6/ unordered | /6/ item | /8/ identity | /8/ class;\n";
 				
 			var name = 
 				"<name> = container | menu | navigation | wrapper | content | inner | title | success | error;";
 				
 			var grammar = {
 				language : "en-us",
-				grammar : header + commands + elements + audit + name,
+				grammar : header + commands + elements + name,
 				aggregate : false,
 				incremental : false
 			};
 
 			//Handlers are functions which are called for various events:
 			var options = {
-				devKey : "a6db053ed80bc7624909e622ce5d3a24",
-				guiID : "properties",
+				devKey : key,
+				guiID : outputTo,
 				grammar : grammar,
 				onReady : that.onWamiReady,
 				onRecognition : that.onWamiRecognition,
@@ -248,6 +261,7 @@ var Ele = Ele || {};
 		
 		that.onWamiReady = function(){
 			Ele.action.postToLive("WAMI Loaded", "success");
+			$('#properties > object').css({'position' : 'absolute' , 'left' : '-999px'});
 			Ele.textEdit.loadCodeMirror();
 		};
 
@@ -263,8 +277,7 @@ var Ele = Ele || {};
 				}else{
 					Ele.action.postToLive(resultString, "caution");
 				}
-			};
-
+			};		
 		that.onWamiError = function(type, message){
 				postToLive("There was a problem loading...", "error");
 					console.log("WAMI error: type  = " + type + ", message = " + message);
@@ -302,6 +315,7 @@ var Ele = Ele || {};
 				}
 			});
 			
+			//change default template based on language
 			switch(lang){
 				case "html":
 					editorValue = Ele.dictionary.html["html5"];
@@ -338,9 +352,11 @@ var Ele = Ele || {};
 			Ele.textEdit.editor.setValue(editorValue.replace(/>/ig, '>\n'));	
 		};
 
+	//end of textEdit
 	return that;
 	}
 	
+	//bring them to life
 	Ele.globals = globals();
 	Ele.dictionary = dictionary();
 	Ele.action = action();
